@@ -23,6 +23,10 @@
   --mint-ink: #2F8F5B;
   --mint-soft: #E7F7EE;
   --butter-soft: #FFF6DC;
+  --sky: #A8D6F7;
+  --sky-ink: #3778B0;
+  --sky-soft: #E8F4FF;
+  --sky-deep: #7FB8E8;
   --shadow-sm: 0 4px 12px rgba(140, 110, 95, .07);
   --shadow: 0 10px 26px rgba(140, 110, 95, .10);
   --shadow-lilac: 0 8px 20px rgba(140, 104, 222, .26);
@@ -62,7 +66,7 @@ strong { font-weight: 800; }
 
 .app {
   width: 100%;
-  max-width: 660px;
+  max-width: 780px;
   margin: 0 auto;
   padding: 18px 16px 30px;
 }
@@ -336,10 +340,10 @@ strong { font-weight: 800; }
 }
 
 .map-card {
-  background: #fff;
+  background: linear-gradient(180deg, #FFFFFF, #FFFDFA);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 9px;
+  padding: 10px;
   box-shadow: var(--shadow);
 }
 
@@ -349,6 +353,7 @@ strong { font-weight: 800; }
   overflow: hidden;
   background: #FBF2E8;
   line-height: 0;
+  box-shadow: inset 0 0 0 1px rgba(140, 110, 95, .06);
 }
 
 .map-frame picture { display: block; }
@@ -373,20 +378,21 @@ strong { font-weight: 800; }
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 12px;
+  gap: 4px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, .97);
   border: 1px solid #EDDFD3;
   box-shadow: 0 6px 16px rgba(120, 90, 70, .20), 0 1px 0 #fff inset;
   color: #5B463E;
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: -.01em;
   white-space: nowrap;
   cursor: pointer;
   transition: transform .16s ease, background .18s ease, color .18s ease,
               border-color .18s ease, box-shadow .18s ease;
+  z-index: 3;
 }
 
 .pin::after {
@@ -648,6 +654,7 @@ strong { font-weight: 800; }
 .tone-peach { background: linear-gradient(150deg, #FFEFE3, #FFD3B5); }
 .tone-mint  { background: linear-gradient(150deg, #EBFAF2, #C9EDD9); }
 .tone-butter{ background: linear-gradient(150deg, #FFF9E4, #FBE7AF); }
+.tone-sky   { background: linear-gradient(150deg, #EAF5FF, #C3E3FA); }
 
 .item-body { flex: 1 1 auto; min-width: 0; }
 
@@ -712,6 +719,7 @@ strong { font-weight: 800; }
 .badge-peach { background: var(--peach-soft); color: var(--peach-ink); }
 .badge-mint  { background: var(--mint-soft); color: var(--mint-ink); }
 .badge-butter{ background: var(--butter-soft); color: #A8862F; }
+.badge-sky   { background: var(--sky-soft); color: var(--sky-ink); }
 .badge-done  { background: var(--mint-soft); color: var(--mint-ink); }
 .badge-wait  { background: #FFF4E4; color: #B27A2E; }
 .badge-muted {
@@ -1094,9 +1102,25 @@ strong { font-weight: 800; }
   .modal-card { border-radius: 24px; max-height: 88vh; overflow: auto; }
 }
 
-@media (min-width: 720px) {
-  .app { max-width: 700px; }
+@media (min-width: 760px) {
+  .app { max-width: 900px; }
   .tab { flex: 1 1 0; }
+  .map-chars .char-tag { font-size: 10px; padding: 2px 8px; }
+  .pin { font-size: 11px; padding: 6px 11px; }
+}
+
+@media (min-width: 1040px) {
+  .app { max-width: 1120px; padding: 28px 24px 40px; }
+  .map-card { padding: 12px; }
+  .map-chars .char-tag { font-size: 11px; padding: 3px 9px; }
+}
+
+@media (max-width: 520px) {
+  .map-card { padding: 7px; border-radius: 22px; }
+  .map-frame { border-radius: 17px; }
+  .map-chars .char-tag { font-size: 8px; padding: 1px 4px; }
+  .pin { font-size: 9px; padding: 4px 7px; gap: 3px; }
+  .map-hint { font-size: 10.5px; }
 }
 
 @media (max-width: 430px) {
@@ -1123,6 +1147,98 @@ strong { font-weight: 800; }
     animation-iteration-count: 1 !important;
     transition-duration: .001ms !important;
   }
+}
+
+/* ---------- 고양이 비서 캐릭터 (지도 위 5마리 · 카드 · 배지) ---------- */
+
+.cat-svg { display: block; overflow: visible; }
+
+.map-chars { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+
+.map-char {
+  position: absolute;
+  width: clamp(38px, 7.5%, 104px);
+  transform: translate(-50%, -92%);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .18s ease;
+}
+
+.map-char .char-body {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 4px 6px rgba(120, 90, 70, .22));
+  transition: transform .18s ease;
+}
+.map-char .char-body .cat-svg { width: 100%; height: auto; }
+
+.map-char .char-tag {
+  margin-top: 1px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .95);
+  border: 1px solid #EDDFD3;
+  color: #5B463E;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(120, 90, 70, .14);
+}
+
+.map-char:hover { transform: translate(-50%, -95%); }
+.map-char:hover .char-body { transform: scale(1.05); }
+.map-char:hover .char-tag { border-color: #D9C6F8; color: var(--lilac-ink); }
+.map-char:focus-visible { outline: 2px solid #B79CF0; outline-offset: 4px; border-radius: 14px; }
+
+.map-frame.lively .map-char .char-body {
+  animation: charBob 3.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+.map-frame.lively .map-char:hover .char-body { animation-play-state: paused; }
+
+@keyframes charBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 이름표 옆 작은 고양이 얼굴 */
+.mini-cat { display: inline-flex; width: 15px; height: 15px; flex: 0 0 auto; }
+.mini-cat .cat-svg { width: 100%; height: 100%; }
+.mini-emoji { font-size: 12px; line-height: 1; }
+.filter .mini-cat { width: 17px; height: 17px; }
+
+/* 리스트·메모 앞 동그란 프로필 */
+.avatar-cat { padding: 2px 2px 0; border-radius: 13px; overflow: hidden; }
+.avatar-cat .cat-svg { width: 100%; height: 100%; }
+
+/* 비서현황 카드 프로필 */
+.member-avatar.member-cat {
+  width: 66px;
+  height: 66px;
+  border-radius: 22px;
+  padding: 4px 4px 2px;
+  overflow: hidden;
+}
+.member-avatar.member-cat .cat-svg { width: 100%; height: 100%; }
+.member-emoji { font-size: 22px; line-height: 1; }
+
+.member-card.is-flash {
+  border-color: #C9AFF9;
+  animation: cardFlash 1.1s ease-out 2;
+}
+
+@keyframes cardFlash {
+  0% { box-shadow: 0 0 0 0 rgba(140, 104, 222, .45); }
+  100% { box-shadow: 0 0 0 14px rgba(140, 104, 222, 0); }
 }
 
 /* ---------- 로그인 문 ---------- */
@@ -1152,30 +1268,3 @@ strong { font-weight: 800; }
   border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer;
 }
 
-/* ---------- AI 직원 캐릭터 (Claude · 지피티) ---------- */
-.map-chars { position: absolute; inset: 0; pointer-events: none; }
-.map-char {
-  position: absolute;
-  width: 9.5%;
-  transform: translate(-50%, -85%);
-  display: flex; flex-direction: column; align-items: center;
-  line-height: 1;
-}
-.char-svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 3px 4px rgba(120, 90, 70, .18)); }
-.char-tag {
-  margin-top: 2px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .92);
-  border: 1px solid #EDDFD3;
-  color: #5B463E;
-  font-size: 10px; font-weight: 800; white-space: nowrap;
-}
-.map-frame.lively .map-char .char-svg { animation: charBob 3.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
-@keyframes charBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .map-frame.lively .map-char .char-svg { animation: none; }
-}

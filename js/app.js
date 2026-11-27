@@ -21,28 +21,42 @@
     motion: true
   };
 
-  var TONES = ['lilac', 'peach', 'mint', 'butter'];
+  var TONES = ['lilac', 'peach', 'mint', 'butter', 'sky'];
 
-  var EMOJIS = ['🌿', '🍑', '🐣', '🐰', '🦊', '🐻', '🐳', '🌸', '🍀', '🐧', '🌙', '🍊'];
+  var EMOJIS = ['🐱', '😺', '😸', '🐈', '🐈‍⬛', '🌿', '🍑', '🐣', '🐰', '🦊', '🌸', '🍀'];
+
+  /* 고양이 다섯이 지도 위 어디에 앉아 있는지 (오피스 맵 기준 %) */
+  var MEMBER_SPOTS = {
+    geon: { x: 23, y: 36.5 },
+    claude: { x: 47, y: 32 },
+    bong: { x: 20.5, y: 55.5 },
+    gpt: { x: 34, y: 77 },
+    antigravity: { x: 59.5, y: 77 }
+  };
+
+  var SPARE_SPOTS = [
+    { x: 66, y: 60 }, { x: 44, y: 47 }, { x: 72, y: 70 },
+    { x: 15, y: 44 }, { x: 52, y: 54 }, { x: 80, y: 56 }
+  ];
 
   var ROOMS = [
     {
-      key: 'command', name: '지휘실', emoji: '🎯', x: 31, y: 35, delay: '0s',
+      key: 'command', name: '지휘실', emoji: '🎯', x: 64, y: 46, delay: '0s',
       desc: '오늘 할 일을 정하고 각자에게 나눠 주는 방이에요.',
       tab: 'members', action: '비서현황 보기'
     },
     {
-      key: 'meeting', name: '대회의실', emoji: '🏛️', x: 29, y: 57, delay: '.6s',
+      key: 'meeting', name: '대회의실', emoji: '🏛️', x: 36, y: 42, delay: '.5s',
       desc: '함께 정할 안건을 모아 두는 방이에요.',
       tab: 'meeting', action: '회의실 열기'
     },
     {
-      key: 'work', name: '작업실', emoji: '💻', x: 71, y: 43, delay: '1.1s',
+      key: 'work', name: '작업실', emoji: '💻', x: 47, y: 56.5, delay: '.9s',
       desc: '맡은 일을 하나씩 체크하는 방이에요.',
       tab: 'work', action: '작업실 열기'
     },
     {
-      key: 'lounge', name: '라운지', emoji: '☕', x: 69, y: 71, delay: '1.6s',
+      key: 'lounge', name: '라운지', emoji: '☕', x: 79, y: 60, delay: '1.3s',
       desc: '소소한 가족 메모를 붙여 두는 방이에요.',
       tab: 'notes', action: '메모 열기'
     }
@@ -84,11 +98,35 @@
   }
 
   function badgeTone(tone) {
-    return tone === 'mint' ? 'mint' : tone === 'butter' ? 'butter' : tone === 'peach' ? 'peach' : 'lilac';
+    var known = ['lilac', 'peach', 'mint', 'butter', 'sky'];
+    return known.indexOf(tone) >= 0 ? tone : 'lilac';
   }
 
-  function memberAvatar(member) {
-    return '<div class="avatar tone-' + esc(member.tone || 'butter') + '" aria-hidden="true">' +
+  /* ---------- 고양이 캐릭터 ---------- */
+
+  function cats() { return window.OfficeCats || null; }
+
+  function catKeyOf(member) {
+    var api = cats();
+    if (!api || !member) return '';
+    var key = member.cat || '';
+    return api.has(key) ? key : '';
+  }
+
+  /* 이름표 옆에 붙는 작은 고양이 얼굴 (고양이가 아니면 이모지) */
+  function miniCat(member) {
+    if (!member) return '<span class="mini-emoji">🙂</span>';
+    if (catKeyOf(member)) return '<span class="mini-cat">' + cats().face(catKeyOf(member)) + '</span>';
+    return '<span class="mini-emoji">' + esc(member.emoji || '🙂') + '</span>';
+  }
+
+  function memberAvatar(member, extraClass) {
+    var key = catKeyOf(member);
+    if (key) {
+      return '<div class="avatar avatar-cat tone-' + esc(member.tone || 'butter') + ' ' + (extraClass || '') + '" aria-hidden="true">' +
+        cats().svg(key) + '</div>';
+    }
+    return '<div class="avatar tone-' + esc(member.tone || 'butter') + ' ' + (extraClass || '') + '" aria-hidden="true">' +
       esc(member.emoji || '🙂') + '</div>';
   }
 
@@ -139,6 +177,9 @@
     var hash = (location.hash || '').replace('#', '');
     if (['map', 'meeting', 'work', 'members', 'notes'].indexOf(hash) >= 0) state.tab = hash;
 
+    var brand = $('.brand-avatar');
+    if (brand && cats() && cats().has('geon')) brand.innerHTML = cats().svg('geon');
+
     bindTabs();
     bindMotion();
     bindMeetingForm();
@@ -146,6 +187,7 @@
     bindNoteForm();
     bindMemberUI();
     bindRoomCard();
+    bindMapChars();
     applyMotion();
     setTab(state.tab, true);
 
@@ -189,6 +231,7 @@
       renderMessages();
       renderNotes();
       renderMapSummary();
+      renderMapChars();
       renderRoomCard();
     });
 
@@ -292,13 +335,58 @@
     });
   }
 
+  /* 오피스 맵 위의 고양이 비서들 — 각자 책상 의자 자리에 앉아 있어요 */
+  function renderMapChars() {
+    var host = $('#mapChars');
+    var api = cats();
+    if (!host || !api) return;
+
+    var sitting = state.members.filter(function (m) { return !!catKeyOf(m); });
+    host.innerHTML = sitting.map(function (m, i) {
+      var spot = MEMBER_SPOTS[m.id] || SPARE_SPOTS[i % SPARE_SPOTS.length];
+      var sub = m.kind === 'ai' ? 'AI 직원' : '가족 비서';
+      return '<button class="map-char" type="button" data-member="' + esc(m.id) + '" ' +
+        'style="left:' + spot.x + '%;top:' + spot.y + '%;--d:' + (i * 0.45).toFixed(2) + 's" ' +
+        'title="' + esc(m.label + ' · ' + sub) + '" ' +
+        'aria-label="' + esc(m.label + ' 비서 카드 보기') + '">' +
+        '<span class="char-body">' + api.svg(catKeyOf(m)) + '</span>' +
+        '<span class="char-tag">' + esc(m.label) + '</span>' +
+      '</button>';
+    }).join('');
+  }
+
+  function bindMapChars() {
+    var host = $('#mapChars');
+    if (!host) return;
+    host.addEventListener('click', function (e) {
+      var btn = e.target.closest('.map-char');
+      if (!btn) return;
+      var id = btn.dataset.member;
+      var member = memberById(id);
+      setTab('members');
+      setTimeout(function () {
+        var card = $('.member-card[data-id="' + id + '"]');
+        if (!card) return;
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.remove('is-flash');
+        void card.offsetWidth;
+        card.classList.add('is-flash');
+      }, 120);
+      toast(member.label + ' 비서를 보고 있어요');
+    });
+  }
+
   function renderMapSummary() {
     var open = openTasks().length;
     var headline = $('#mapHeadline');
     if (headline) {
+      var catCount = state.members.filter(function (m) { return !!catKeyOf(m); }).length;
+      var who = catCount === state.members.length
+        ? state.members.length + '마리 고양이 비서'
+        : state.members.length + '명의 비서';
       headline.textContent = open > 0
         ? open + '건의 일이 진행 중이에요'
-        : state.members.length + '명의 비서가 대기 중이에요';
+        : who + '가 대기 중이에요';
     }
     var teams = $('#chipTeams');
     if (teams) teams.textContent = '비서 ' + state.members.length + '명 가동';
@@ -548,7 +636,7 @@
       var count = state.tasks.filter(function (t) { return t.assigneeId === m.id; }).length;
       parts.push('<button class="filter' + (state.taskFilter === m.id ? ' is-active' : '') +
         '" type="button" data-filter="' + esc(m.id) + '">' +
-        esc(m.emoji || '') + ' ' + esc(m.label) + ' <span class="count">' + count + '</span></button>');
+        miniCat(m) + ' ' + esc(m.label) + ' <span class="count">' + count + '</span></button>');
     });
 
     host.innerHTML = parts.join('');
@@ -577,7 +665,7 @@
         '<div class="task-main">' +
           '<div class="task-title">' + esc(task.title) + '</div>' +
           '<div class="task-tags">' +
-            '<span class="badge badge-' + badgeTone(owner.tone) + '">' + esc(owner.emoji + ' ' + owner.label) + '</span>' +
+            '<span class="badge badge-' + badgeTone(owner.tone) + '">' + miniCat(owner) + ' ' + esc(owner.label) + '</span>' +
             (task.done
               ? '<span class="badge badge-done">완료</span>'
               : '<span class="badge badge-wait">진행 중</span>') +
@@ -752,8 +840,9 @@
 
       return '<article class="member-card" data-id="' + esc(m.id) + '">' +
         '<div class="member-top">' +
-          '<div class="member-avatar tone-' + esc(m.tone || 'butter') + '" aria-hidden="true">' +
-            esc(m.emoji || '🙂') + '</div>' +
+          '<div class="member-avatar member-cat tone-' + esc(m.tone || 'butter') + '" aria-hidden="true">' +
+            (catKeyOf(m) ? cats().svg(catKeyOf(m)) : '<span class="member-emoji">' + esc(m.emoji || '🙂') + '</span>') +
+          '</div>' +
           '<div>' +
             '<h3 class="member-name">' + esc(m.label) +
               '<span class="badge badge-muted">' + esc(roleBadge) + '</span></h3>' +
@@ -849,7 +938,7 @@
       return '<article class="note" data-id="' + esc(note.id) + '" data-color="' + esc(note.color || 'lilac') + '">' +
         '<p class="note-text">' + esc(note.text) + '</p>' +
         '<div class="note-foot">' +
-          '<span>' + esc(author.emoji + ' ' + author.label) + ' · ' + esc(fmtTime(note.createdAt)) + '</span>' +
+          '<span>' + miniCat(author) + ' ' + esc(author.label) + ' · ' + esc(fmtTime(note.createdAt)) + '</span>' +
           '<button class="mini-btn" type="button" data-act="del-note" aria-label="메모 떼기">✕</button>' +
         '</div>' +
       '</article>';

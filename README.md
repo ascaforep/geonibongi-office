@@ -1,6 +1,7 @@
 # 건이봉이 오피스
 
-건이(올라)와 봉이(똑똑이) 두 팀이 함께 쓰는 가족 공동 비서실 웹페이지입니다.
+건이(올라)와 봉이(똑똑이) 두 팀, 그리고 AI 직원 세 명(클로드 · 지피티 · 안티그래비티)이 함께 쓰는 가족 공동 비서실 웹페이지입니다.
+다섯 비서는 각자 다른 고양이 캐릭터로 그려집니다.
 빌드 도구 없이 HTML/CSS/JS 만으로 동작해서 **GitHub Pages 에 폴더를 그대로 올리면 바로 열립니다.**
 
 ![오피스 맵](assets/office-map.png)
@@ -9,10 +10,10 @@
 
 | 탭 | 내용 |
 | --- | --- |
-| 🗺️ 오피스 맵 | 미니어처 오피스 그림 + 방 핀(지휘실 · 대회의실 · 작업실 · 라운지), 오늘 상태 요약, 움직임 ON/OFF |
+| 🗺️ 오피스 맵 | 5인용 미니어처 오피스 그림 + 의자에 앉은 고양이 비서 다섯 + 방 핀(지휘실 · 대회의실 · 작업실 · 라운지), 오늘 상태 요약, 움직임 ON/OFF |
 | 💬 회의실 | 함께 정할 안건 올리기 · 지우기 (올린 사람 표시) |
-| 🧰 작업실 | 할 일 추가 · 완료 체크 · 지우기, 담당자별 필터 (전체 / 건이 · 올라 / 봉이 · 똑똑이) |
-| 📊 비서현황 | 팀별 카드(진행 중·완료 수, 상태, 직책 미정 배지) + 가족 구성원 추가 |
+| 🧰 작업실 | 할 일 추가 · 완료 체크 · 지우기, 담당자별 필터 (전체 / 건이 · 올라 / 봉이 · 똑똑이 / 클로드 / 지피티 / 안티그래비티) |
+| 📊 비서현황 | 고양이 프로필 카드(진행 중·완료 수, 상태, 직책 미정 배지) + 가족 구성원 추가 |
 | 📝 메모 | 색깔 메모 붙이기 · 떼기 |
 
 - 저장: 지금은 브라우저 `localStorage` (같은 기기·같은 브라우저에만 저장)
@@ -26,8 +27,9 @@ projects/geonibongi-office/
 ├── css/style.css       디자인 (크림 + 라일락 파스텔)
 ├── js/db-config.js     데이터 연결 설정 (Firebase 값 넣는 곳)
 ├── js/store.js         저장 담당 (localStorage ↔ Firebase 교체 가능)
+├── js/cats.js          고양이 비서 다섯 캐릭터 (SVG)
 ├── js/app.js           화면 동작
-├── assets/office-map.png  오피스 그림
+├── assets/office-map.png  오피스 그림 (5인용 확장 · webp 동봉)
 └── README.md
 ```
 
@@ -81,7 +83,7 @@ projects/geonibongi-office/
 ```
 offices/geonibongi/
 ├── meta/            { seeded: true, createdAt: ... }
-├── members/<id>     { id, name, pickle, label, emoji, tone, role, core, joinedAt }
+├── members/<id>     { id, name, pickle, label, emoji, tone, cat, role, core, joinedAt }
 ├── messages/<id>    { id, title, body, authorId, createdAt }
 ├── tasks/<id>       { id, title, assigneeId, done, doneAt, createdAt }
 └── notes/<id>       { id, text, color, authorId, createdAt }

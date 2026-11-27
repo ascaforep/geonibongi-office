@@ -37,6 +37,7 @@
       label: extra.label || (pickle ? name + ' · ' + pickle : name),
       emoji: emoji,
       tone: tone,
+      cat: extra.cat || '',     // 고양이 캐릭터 모양 키 (화면에서 고양이로 그려요)
       role: extra.role || '',   // 직책은 나중에 정해요 ("직책 미정")
       sub: extra.sub || '',     // 카드에 보이는 한 줄 소개
       kind: extra.kind || '',   // 'ai' 면 AI 직원으로 표시
@@ -45,22 +46,34 @@
     };
   }
 
+  /* 기본 구성원의 '이름표'만 맞추는 항목들.
+     (직책 role 과 합류 시각 joinedAt 은 사람이 정한 값이라 건드리지 않아요) */
+  var CORE_IDENTITY = ['name', 'pickle', 'label', 'emoji', 'tone', 'cat', 'sub', 'kind'];
+
   /* 처음 열었을 때 보이는 기본 데이터
-     — 사람 두 팀(건이·봉이)과 AI 직원 두 명(클로드·지피티) */
+     — 다섯 고양이 비서: 사람 두 팀(건이·봉이)과 AI 직원 셋(클로드·지피티·안티그래비티) */
   function seedState() {
     return {
       members: [
-        member('geon', '건이', '올라', '🌿', 'lilac'),
-        member('bong', '봉이', '똑똑이', '🍑', 'peach'),
+        member('geon', '건이', '올라', '🌿', 'lilac', { cat: 'geon' }),
+        member('bong', '봉이', '똑똑이', '🍑', 'peach', { cat: 'bong' }),
         member('claude', '클로드', '클로드', '🧠', 'mint', {
           label: '클로드',
           sub: '노션 일 목록으로 함께 일해요',
-          kind: 'ai'
+          kind: 'ai',
+          cat: 'claude'
         }),
         member('gpt', '지피티', '지피티', '🤖', 'butter', {
           label: '지피티',
           sub: '노션 일 목록으로 함께 일해요',
-          kind: 'ai'
+          kind: 'ai',
+          cat: 'gpt'
+        }),
+        member('antigravity', '안티그래비티', '안티그래비티', '🛰️', 'sky', {
+          label: '안티그래비티',
+          sub: '가볍게 떠서 일을 옮겨요',
+          kind: 'ai',
+          cat: 'antigravity'
         })
       ],
       messages: [],
@@ -86,12 +99,25 @@
     return seedState().members;
   }
 
-  /* 이미 저장된 구성원에 없는 기본 구성원만 조용히 채워 넣습니다.
-     (기존 구성원의 이름·얼굴·색은 절대 건드리지 않아요) */
+  /* 저장된 기본 구성원의 이름표가 옛 이름(GPT 등)이면 지금 이름표로 맞춰 주고,
+     빠진 기본 구성원(안티그래비티 등)은 채워 넣습니다.
+     직책·합류 시각처럼 사람이 정한 값은 그대로 둬요. */
   function mergeCoreMembers(list) {
     var arr = Array.isArray(list) ? list.slice() : [];
     var have = {};
-    arr.forEach(function (m) { if (m && m.id) have[m.id] = true; });
+    var seed = {};
+    coreMembers().forEach(function (m) { seed[m.id] = m; });
+
+    arr = arr.map(function (item) {
+      if (!item || !item.id || !seed[item.id]) return item;
+      have[item.id] = true;
+      var next = Object.assign({}, item);
+      CORE_IDENTITY.forEach(function (key) {
+        if (next[key] !== seed[item.id][key]) next[key] = seed[item.id][key];
+      });
+      return next;
+    });
+
     coreMembers().forEach(function (m) {
       if (!have[m.id]) arr.push(m);
     });
@@ -253,31 +279,40 @@
     });
   };
 
-  /* 이미 사는 중인 DB 에 빠진 기본 구성원(클로드·지피티 등)만 더합니다.
-     이미 있는 구성원은 읽기만 하고 지우거나 덮어쓰지 않아요. */
+  /* 이미 사는 중인 DB 의 기본 구성원을 지금 모습으로 맞춥니다.
+     - 빠진 기본 구성원(클로드·지피티·안티그래비티)은 새로 넣고
+     - 옛 이름표(GPT 등)나 고양이 모양이 없는 기본 구성원은 이름표만 고쳐 씁니다.
+     직책(role)·합류 시각(joinedAt)처럼 사람이 정한 값은 건드리지 않아요. */
   FirebaseBackend.prototype._ensureCoreMembers = function () {
     var self = this;
     return this.db.ref(this.path('members')).once('value').then(function (snap) {
       var value = snap.val() || {};
-      var have = {};
+      var byId = {};
       if (Array.isArray(value)) {
         value.filter(Boolean).forEach(function (item, i) {
-          have[item.id || String(i)] = true;
+          byId[item.id || String(i)] = item;
         });
       } else {
         Object.keys(value).forEach(function (key) {
           var item = value[key] || {};
-          have[item.id || key] = true;
+          byId[item.id || key] = item;
         });
       }
       var patch = {};
       coreMembers().forEach(function (m) {
-        if (!have[m.id]) patch['members/' + m.id] = m;
+        var saved = byId[m.id];
+        if (!saved) {
+          patch['members/' + m.id] = m;
+          return;
+        }
+        CORE_IDENTITY.forEach(function (key) {
+          if (saved[key] !== m[key]) patch['members/' + m.id + '/' + key] = m[key];
+        });
       });
       if (!Object.keys(patch).length) return null;
       return self.db.ref(self.root).update(patch);
     }).catch(function (err) {
-      console.warn('[건이봉이 오피스] 기본 구성원을 채우지 못했어요', err);
+      console.warn('[건이봉이 오피스] 기본 구성원을 맞추지 못했어요', err);
     });
   };
 
