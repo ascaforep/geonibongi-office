@@ -1120,8 +1120,21 @@ strong { font-weight: 800; }
   .map-card { padding: 7px; border-radius: 22px; }
   .map-frame { border-radius: 17px; }
   .map-chars .char-tag { font-size: 8px; padding: 1px 4px; }
-  .pin { font-size: 9px; padding: 4px 7px; gap: 3px; }
   .map-hint { font-size: 10.5px; }
+}
+
+/* 아주 좁은 화면: 방 핀은 동그란 아이콘으로 줄여 고양이 이름표와 서로 가리지 않게 */
+@media (max-width: 460px) {
+  .pin {
+    font-size: 0;
+    gap: 0;
+    padding: 0;
+    width: 26px;
+    height: 26px;
+    justify-content: center;
+  }
+  .pin > span { font-size: 12px; line-height: 1; }
+  .pin:hover { transform: translate(-50%, -50%) scale(1.08); }
 }
 
 @media (max-width: 430px) {
