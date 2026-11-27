@@ -1151,3 +1151,31 @@ strong { font-weight: 800; }
   border: 1px solid var(--line); background: var(--paper); color: var(--ink-soft);
   border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer;
 }
+
+/* ---------- AI 직원 캐릭터 (Claude · 지피티) ---------- */
+.map-chars { position: absolute; inset: 0; pointer-events: none; }
+.map-char {
+  position: absolute;
+  width: 9.5%;
+  transform: translate(-50%, -85%);
+  display: flex; flex-direction: column; align-items: center;
+  line-height: 1;
+}
+.char-svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 3px 4px rgba(120, 90, 70, .18)); }
+.char-tag {
+  margin-top: 2px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid #EDDFD3;
+  color: #5B463E;
+  font-size: 10px; font-weight: 800; white-space: nowrap;
+}
+.map-frame.lively .map-char .char-svg { animation: charBob 3.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes charBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-frame.lively .map-char .char-svg { animation: none; }
+}
