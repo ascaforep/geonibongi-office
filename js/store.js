@@ -273,14 +273,116 @@
     };
   }
 
+  /* ============================================================
+     로그인 문 (Google 로그인 + 허용된 이메일만 입장)
+     실제 잠금은 Firebase 보안 규칙이 하고, 이 화면은 안내용입니다.
+     ============================================================ */
+
+  function gate() {
+    var el = document.getElementById('authGate');
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = 'authGate';
+    el.className = 'auth-gate';
+    el.innerHTML =
+      '<div class="auth-card">' +
+        '<div class="auth-emoji" aria-hidden="true">🔐</div>' +
+        '<h2>건이봉이 오피스</h2>' +
+        '<p class="auth-msg" id="authMsg">가족만 들어올 수 있어요.<br>Google 계정으로 로그인해 주세요.</p>' +
+        '<button type="button" class="auth-btn" id="authBtn">Google로 로그인</button>' +
+        '<p class="auth-hint">카카오톡 안에서 열었다면 오른쪽 위 메뉴 → <b>다른 브라우저로 열기</b>(Chrome·Safari)로 열어 주세요.</p>' +
+      '</div>';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showGate(msg) {
+    var el = gate();
+    el.hidden = false;
+    if (msg) document.getElementById('authMsg').innerHTML = msg;
+    return el;
+  }
+
+  function hideGate() {
+    var el = document.getElementById('authGate');
+    if (el) el.hidden = true;
+  }
+
+  function isAllowed(user, fb) {
+    var list = (fb.allowedEmails || []).map(function (e) { return String(e).toLowerCase(); });
+    if (!list.length) return true;
+    return !!(user && user.email && list.indexOf(user.email.toLowerCase()) !== -1);
+  }
+
+  function waitForUser(auth, fb, sdk) {
+    return new Promise(function (resolve) {
+      var done = false;
+      auth.onAuthStateChanged(function (user) {
+        if (done) return;
+        if (user && isAllowed(user, fb)) {
+          done = true;
+          hideGate();
+          resolve(user);
+          return;
+        }
+        if (user) {
+          auth.signOut();
+          showGate('<b>' + user.email + '</b> 계정은 아직 입장 허락이 없어요.<br>등록된 가족 계정으로 다시 로그인해 주세요.');
+        } else {
+          showGate();
+        }
+      });
+      gate().querySelector('#authBtn').onclick = function () {
+        var provider = new sdk.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        auth.signInWithPopup(provider).catch(function (err) {
+          if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
+            return auth.signInWithRedirect(provider);
+          }
+          if (err && err.code === 'auth/popup-closed-by-user') return;
+          showGate('로그인하지 못했어요 (' + esc(err && err.code || err) + ').<br>Chrome·Safari에서 다시 시도해 주세요.');
+        });
+      };
+    });
+  }
+
+  function esc(v) {
+    return String(v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function addLogout(auth, user) {
+    var pill = document.getElementById('statusPill');
+    if (!pill || document.getElementById('logoutBtn')) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'logoutBtn';
+    btn.className = 'logout-btn';
+    btn.title = user.email + ' 로그아웃';
+    btn.textContent = '로그아웃';
+    btn.onclick = function () { auth.signOut().then(function () { location.reload(); }); };
+    pill.parentNode.insertBefore(btn, pill.nextSibling);
+  }
+
   function startFirebase(fb) {
     var version = fb.sdkVersion || '10.12.2';
     var base = 'https://www.gstatic.com/firebasejs/' + version + '/';
+    var sdk, app;
     return loadScript(base + 'firebase-app-compat.js')
+      .then(function () { return loadScript(base + 'firebase-auth-compat.js'); })
       .then(function () { return loadScript(base + 'firebase-database-compat.js'); })
       .then(function () {
-        var sdk = global.firebase;
-        var app = (sdk.apps && sdk.apps.length) ? sdk.app() : sdk.initializeApp(fb.config);
+        sdk = global.firebase;
+        app = (sdk.apps && sdk.apps.length) ? sdk.app() : sdk.initializeApp(fb.config);
+        if (fb.requireLogin === false) return null;
+        var auth = app.auth();
+        return waitForUser(auth, fb, sdk).then(function (user) {
+          addLogout(auth, user);
+          return user;
+        });
+      })
+      .then(function () {
         var backend = new FirebaseBackend(app.database(), fb.rootPath || 'offices/geonibongi');
         return backend.ready().then(function () { return wrap(backend, 'firebase'); });
       });
@@ -293,7 +395,11 @@
       return Promise.resolve(wrap(new LocalBackend(), 'local'));
     }
     return startFirebase(fb).catch(function (err) {
-      console.warn('[건이봉이 오피스] Firebase 연결 실패 — 로컬 모드로 계속합니다.', err);
+      console.warn('[건이봉이 오피스] Firebase 연결 실패', err);
+      if (fb.requireLogin !== false) {
+        showGate('연결에 문제가 생겼어요.<br>잠시 뒤 새로고침해 주세요.');
+        return new Promise(function () {});  /* 잠금 모드에서는 로컬로 넘어가지 않음 */
+      }
       return wrap(new LocalBackend(), 'local');
     });
   }
