@@ -46,7 +46,7 @@
   }
 
   /* 처음 열었을 때 보이는 기본 데이터
-     — 사람 두 팀(건이·봉이)과 AI 직원 두 명(Claude·GPT) */
+     — 사람 두 팀(건이·봉이)과 AI 직원 두 명(Claude·지피티) */
   function seedState() {
     return {
       members: [
@@ -57,8 +57,8 @@
           sub: '노션 일 목록으로 함께 일해요',
           kind: 'ai'
         }),
-        member('gpt', 'GPT', 'GPT', '🤖', 'butter', {
-          label: 'GPT',
+        member('gpt', '지피티', '지피티', '🤖', 'butter', {
+          label: '지피티',
           sub: '노션 일 목록으로 함께 일해요',
           kind: 'ai'
         })
@@ -253,7 +253,7 @@
     });
   };
 
-  /* 이미 사는 중인 DB 에 빠진 기본 구성원(Claude·GPT 등)만 더합니다.
+  /* 이미 사는 중인 DB 에 빠진 기본 구성원(Claude·지피티 등)만 더합니다.
      이미 있는 구성원은 읽기만 하고 지우거나 덮어쓰지 않아요. */
   FirebaseBackend.prototype._ensureCoreMembers = function () {
     var self = this;
