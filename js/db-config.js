@@ -40,6 +40,14 @@ window.OFFICE_CONFIG = {
       appId: '1:74090880959:web:68b781f83b71c253534b0a'
     },
 
+    /* 로그인 잠금: true 면 아래 이메일로 Google 로그인한 사람만 들어옵니다.
+       (진짜 잠금은 Firebase 보안 규칙 — README 의 '보안 규칙' 참고) */
+    requireLogin: true,
+    allowedEmails: [
+      'ghkdrjsl@gmail.com',      // 건이
+      'hyejeong20@gmail.com' // 봉이
+    ],
+
     /* 이 오피스의 데이터가 저장될 경로 (같은 DB 를 다른 오피스와 나눠 쓸 때 사용) */
     rootPath: 'offices/geonibongi',
 
