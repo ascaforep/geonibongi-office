@@ -855,7 +855,7 @@ strong { font-weight: 800; }
 
 .member-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
   gap: 11px;
 }
 
@@ -1113,6 +1113,7 @@ strong { font-weight: 800; }
   .app { max-width: 1120px; padding: 28px 24px 40px; }
   .map-card { padding: 12px; }
   .map-chars .char-tag { font-size: 11px; padding: 3px 9px; }
+  #panel-meeting, #panel-work, #panel-notes { max-width: 820px; margin-left: auto; margin-right: auto; }
 }
 
 @media (max-width: 520px) {
@@ -1157,7 +1158,7 @@ strong { font-weight: 800; }
 
 .map-char {
   position: absolute;
-  width: clamp(38px, 7.5%, 104px);
+  width: clamp(34px, 7.5%, 104px);
   transform: translate(-50%, -92%);
   padding: 0;
   border: 0;
