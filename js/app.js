@@ -28,7 +28,7 @@
   var ROOMS = [
     {
       key: 'command', name: '지휘실', emoji: '🎯', x: 31, y: 35, delay: '0s',
-      desc: '오늘 할 일을 정하고 두 팀에 나눠 주는 방이에요.',
+      desc: '오늘 할 일을 정하고 각자에게 나눠 주는 방이에요.',
       tab: 'members', action: '비서현황 보기'
     },
     {
@@ -168,12 +168,12 @@
       pill.dataset.mode = 'live';
       text.textContent = '가동 중';
       pill.title = 'Firebase 실시간 DB에 연결되어 있어요';
-      foot.textContent = '두 팀이 같은 내용을 실시간으로 함께 봐요 · Firebase 연결됨';
+      foot.textContent = '모두가 같은 내용을 실시간으로 함께 봐요 · Firebase 연결됨';
     } else {
       pill.dataset.mode = 'local';
       text.textContent = '로컬 모드 · DB 연결 전';
       pill.title = '지금은 이 브라우저에만 저장돼요';
-      foot.textContent = '데이터는 이 브라우저에만 저장돼요 · DB를 연결하면 두 팀이 실시간으로 함께 봐요';
+      foot.textContent = '데이터는 이 브라우저에만 저장돼요 · DB를 연결하면 함께 실시간으로 봐요';
     }
   }
 
@@ -298,10 +298,10 @@
     if (headline) {
       headline.textContent = open > 0
         ? open + '건의 일이 진행 중이에요'
-        : state.members.length + '개 팀이 대기 중이에요';
+        : state.members.length + '명의 비서가 대기 중이에요';
     }
     var teams = $('#chipTeams');
-    if (teams) teams.textContent = state.members.length + '개 팀 가동';
+    if (teams) teams.textContent = '비서 ' + state.members.length + '명 가동';
     var count = $('#chipMembers');
     if (count) count.textContent = String(state.members.length);
   }
@@ -744,20 +744,25 @@
       state.notes.forEach(function (n) { if (n.authorId === m.id) activity.push(n); });
       var latest = latestOf(activity);
 
+      var isAi = m.kind === 'ai';
+      var roleBadge = m.role || (isAi ? 'AI 비서' : '직책 미정');
+      var subline = m.sub || (m.pickle ? '피클 ' + m.pickle + '와 함께' : '함께하는 팀');
+      var kindBadge = isAi ? 'AI 직원' : (m.core ? '기본 구성원' : '새로 합류');
+      var placeBadge = isAi ? '노션 연동' : '비서실 상주';
+
       return '<article class="member-card" data-id="' + esc(m.id) + '">' +
         '<div class="member-top">' +
           '<div class="member-avatar tone-' + esc(m.tone || 'butter') + '" aria-hidden="true">' +
             esc(m.emoji || '🙂') + '</div>' +
           '<div>' +
             '<h3 class="member-name">' + esc(m.label) +
-              '<span class="badge badge-muted">직책 미정</span></h3>' +
-            '<p class="member-sub">' + (m.pickle ? '피클 ' + esc(m.pickle) + '와 함께' : '함께하는 팀') + '</p>' +
+              '<span class="badge badge-muted">' + esc(roleBadge) + '</span></h3>' +
+            '<p class="member-sub">' + esc(subline) + '</p>' +
           '</div>' +
         '</div>' +
         '<div class="member-badges">' +
-          '<span class="badge badge-' + badgeTone(m.tone) + '">' +
-            (m.core ? '기본 구성원' : '새로 합류') + '</span>' +
-          '<span class="badge badge-mint">비서실 상주</span>' +
+          '<span class="badge badge-' + badgeTone(m.tone) + '">' + esc(kindBadge) + '</span>' +
+          '<span class="badge badge-mint">' + esc(placeBadge) + '</span>' +
         '</div>' +
         '<div class="member-stats">' +
           '<div class="stat is-lilac"><div class="stat-num">' + open + '</div>' +

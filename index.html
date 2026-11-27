@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>건이봉이 오피스 · 가족 공동 비서실</title>
-  <meta name="description" content="건이와 봉이, 두 팀이 함께 쓰는 아기자기한 가족 공동 비서실">
+  <meta name="description" content="건이와 봉이, 그리고 AI 직원 Claude·GPT가 함께 쓰는 아기자기한 가족 공동 비서실">
   <meta name="theme-color" content="#FFF7EE">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
@@ -36,7 +36,7 @@
         </div>
         <div class="brand-text">
           <h1>건이봉이 오피스</h1>
-          <p class="brand-sub"><span class="brand-dot" aria-hidden="true"></span>건이 · 봉이 공동 비서실</p>
+          <p class="brand-sub"><span class="brand-dot" aria-hidden="true"></span>건이 · 봉이 · Claude · GPT 공동 비서실</p>
         </div>
       </div>
       <div class="status-pill" id="statusPill" data-mode="local" title="데이터 저장 방식">
@@ -69,7 +69,7 @@
       <section class="panel is-active" id="panel-map" role="tabpanel" aria-labelledby="tab-map">
         <div class="hero">
           <span class="hero-chip">🏢 건이봉이 오피스 공동 비서실</span>
-          <h2 id="mapHeadline">2개 팀이 대기 중이에요</h2>
+          <h2 id="mapHeadline">4명의 비서가 대기 중이에요</h2>
           <p class="hero-desc">방 안의 캐릭터 핀을 눌러 보세요. 방마다 지금 상황을 바로 볼 수 있어요.</p>
         </div>
 
@@ -77,8 +77,8 @@
           <button class="chip chip-toggle is-on" id="motionToggle" aria-pressed="true">
             <span aria-hidden="true">✨</span> 움직임 <span id="motionLabel">ON</span>
           </button>
-          <span class="chip"><i class="dot-ok" aria-hidden="true"></i><span id="chipTeams">2개 팀 가동</span></span>
-          <span class="chip">👥 전체 <span id="chipMembers">2</span>명</span>
+          <span class="chip"><i class="dot-ok" aria-hidden="true"></i><span id="chipTeams">비서 4명 가동</span></span>
+          <span class="chip">👥 전체 <span id="chipMembers">4</span>명</span>
         </div>
 
         <div class="map-card">
@@ -99,7 +99,7 @@
             <div class="room-emoji" id="roomEmoji" aria-hidden="true">🎯</div>
             <div class="room-title">
               <h3 id="roomName">지휘실</h3>
-              <p id="roomDesc">오늘 할 일을 정하고 두 팀에 나눠 주는 방이에요.</p>
+              <p id="roomDesc">오늘 할 일을 정하고 각자에게 나눠 주는 방이에요.</p>
             </div>
             <button class="icon-btn" id="roomClose" type="button" aria-label="방 정보 닫기">✕</button>
           </div>
@@ -114,7 +114,7 @@
       <section class="panel" id="panel-meeting" role="tabpanel" aria-labelledby="tab-meeting" hidden>
         <div class="section-head">
           <h2>회의실</h2>
-          <p>함께 정할 안건을 올려 두면 두 팀이 같이 봐요.</p>
+          <p>함께 정할 안건을 올려 두면 모두 같이 봐요.</p>
         </div>
 
         <form class="card form" id="messageForm" autocomplete="off">
@@ -176,7 +176,7 @@
       <section class="panel" id="panel-members" role="tabpanel" aria-labelledby="tab-members" hidden>
         <div class="section-head">
           <h2>비서현황</h2>
-          <p>지금 오피스에 있는 팀이에요. 직책은 나중에 정해도 괜찮아요.</p>
+          <p>지금 오피스에 있는 팀과 AI 직원이에요. 직책은 나중에 정해도 괜찮아요.</p>
         </div>
 
         <div class="member-grid" id="memberGrid"></div>
@@ -220,7 +220,7 @@
     </main>
 
     <footer class="foot">
-      <span id="footMode">데이터는 이 브라우저에만 저장돼요 · DB를 연결하면 두 팀이 실시간으로 함께 봐요</span>
+      <span id="footMode">데이터는 이 브라우저에만 저장돼요 · DB를 연결하면 함께 실시간으로 봐요</span>
     </footer>
   </div>
 

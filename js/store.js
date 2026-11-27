@@ -28,26 +28,40 @@
       Math.random().toString(36).slice(2, 7);
   }
 
-  function member(id, name, pickle, emoji, tone) {
+  function member(id, name, pickle, emoji, tone, extra) {
+    extra = extra || {};
     return {
       id: id,
       name: name,
       pickle: pickle,
-      label: pickle ? name + ' · ' + pickle : name,
+      label: extra.label || (pickle ? name + ' · ' + pickle : name),
       emoji: emoji,
       tone: tone,
-      role: '',            // 직책은 나중에 정해요 ("직책 미정")
-      core: true,          // 기본 구성원 (지우기 버튼 없음)
+      role: extra.role || '',   // 직책은 나중에 정해요 ("직책 미정")
+      sub: extra.sub || '',     // 카드에 보이는 한 줄 소개
+      kind: extra.kind || '',   // 'ai' 면 AI 직원으로 표시
+      core: extra.core === false ? false : true,  // 기본 구성원 (지우기 버튼 없음)
       joinedAt: nowISO()
     };
   }
 
-  /* 처음 열었을 때 보이는 기본 데이터 (두 팀만) */
+  /* 처음 열었을 때 보이는 기본 데이터
+     — 사람 두 팀(건이·봉이)과 AI 직원 두 명(Claude·GPT) */
   function seedState() {
     return {
       members: [
         member('geon', '건이', '올라', '🌿', 'lilac'),
-        member('bong', '봉이', '똑똑이', '🍑', 'peach')
+        member('bong', '봉이', '똑똑이', '🍑', 'peach'),
+        member('claude', 'Claude', 'Claude', '🧠', 'mint', {
+          label: 'Claude',
+          sub: '노션 일 목록으로 함께 일해요',
+          kind: 'ai'
+        }),
+        member('gpt', 'GPT', 'GPT', '🤖', 'butter', {
+          label: 'GPT',
+          sub: '노션 일 목록으로 함께 일해요',
+          kind: 'ai'
+        })
       ],
       messages: [],
       tasks: [],
@@ -65,6 +79,23 @@
 
   function byDateDesc(a, b) {
     return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+  }
+
+  /* 기본 구성원 목록 (지금 화면의 seed 기준) */
+  function coreMembers() {
+    return seedState().members;
+  }
+
+  /* 이미 저장된 구성원에 없는 기본 구성원만 조용히 채워 넣습니다.
+     (기존 구성원의 이름·얼굴·색은 절대 건드리지 않아요) */
+  function mergeCoreMembers(list) {
+    var arr = Array.isArray(list) ? list.slice() : [];
+    var have = {};
+    arr.forEach(function (m) { if (m && m.id) have[m.id] = true; });
+    coreMembers().forEach(function (m) {
+      if (!have[m.id]) arr.push(m);
+    });
+    return arr;
   }
 
   /* ============================================================
@@ -113,6 +144,7 @@
         }
       }
     }, this);
+    this.state.members = mergeCoreMembers(this.state.members);
   };
 
   LocalBackend.prototype._save = function () {
@@ -214,8 +246,38 @@
         payload[c] = bag;
       });
       return self.db.ref(self.root).update(payload);
+    }).then(function () {
+      return self._ensureCoreMembers();
     }).catch(function (err) {
       console.warn('[건이봉이 오피스] 초기 데이터를 준비하지 못했어요', err);
+    });
+  };
+
+  /* 이미 사는 중인 DB 에 빠진 기본 구성원(Claude·GPT 등)만 더합니다.
+     이미 있는 구성원은 읽기만 하고 지우거나 덮어쓰지 않아요. */
+  FirebaseBackend.prototype._ensureCoreMembers = function () {
+    var self = this;
+    return this.db.ref(this.path('members')).once('value').then(function (snap) {
+      var value = snap.val() || {};
+      var have = {};
+      if (Array.isArray(value)) {
+        value.filter(Boolean).forEach(function (item, i) {
+          have[item.id || String(i)] = true;
+        });
+      } else {
+        Object.keys(value).forEach(function (key) {
+          var item = value[key] || {};
+          have[item.id || key] = true;
+        });
+      }
+      var patch = {};
+      coreMembers().forEach(function (m) {
+        if (!have[m.id]) patch['members/' + m.id] = m;
+      });
+      if (!Object.keys(patch).length) return null;
+      return self.db.ref(self.root).update(patch);
+    }).catch(function (err) {
+      console.warn('[건이봉이 오피스] 기본 구성원을 채우지 못했어요', err);
     });
   };
 
