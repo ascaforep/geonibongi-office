@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>건이봉이 오피스 · 가족 공동 비서실</title>
+  <meta name="description" content="건이와 봉이, 두 팀이 함께 쓰는 아기자기한 가족 공동 비서실">
+  <meta name="theme-color" content="#FFF7EE">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-avatar" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="img">
+            <defs>
+              <linearGradient id="blobGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#D3BFFA"></stop>
+                <stop offset="1" stop-color="#A98BF0"></stop>
+              </linearGradient>
+            </defs>
+            <ellipse cx="32" cy="55" rx="20" ry="4" fill="#E9DDF8" opacity=".7"></ellipse>
+            <circle cx="32" cy="35" r="21" fill="url(#blobGrad)"></circle>
+            <path d="M32 15c3.6-5.6 10-7.2 13.4-6.2-.9 4.8-4.8 8.6-10.4 9.6z" fill="#94D6B2"></path>
+            <circle cx="25.5" cy="34" r="3.1" fill="#3E2F55"></circle>
+            <circle cx="38.5" cy="34" r="3.1" fill="#3E2F55"></circle>
+            <circle cx="26.6" cy="32.9" r="1.05" fill="#fff"></circle>
+            <circle cx="39.6" cy="32.9" r="1.05" fill="#fff"></circle>
+            <path d="M28.4 42.4c1.9 2.4 5.3 2.4 7.2 0" stroke="#3E2F55" stroke-width="2.3" stroke-linecap="round" fill="none"></path>
+            <ellipse cx="19.5" cy="40.5" rx="2.8" ry="2.1" fill="#F7A8C0" opacity=".8"></ellipse>
+            <ellipse cx="44.5" cy="40.5" rx="2.8" ry="2.1" fill="#F7A8C0" opacity=".8"></ellipse>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>건이봉이 오피스</h1>
+          <p class="brand-sub"><span class="brand-dot" aria-hidden="true"></span>건이 · 봉이 공동 비서실</p>
+        </div>
+      </div>
+      <div class="status-pill" id="statusPill" data-mode="local" title="데이터 저장 방식">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusText">로컬 모드 · DB 연결 전</span>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="오피스 메뉴">
+      <button class="tab is-active" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" data-tab="map">
+        <span class="tab-icon" aria-hidden="true">🗺️</span><span class="tab-label">오피스 맵</span>
+      </button>
+      <button class="tab" id="tab-meeting" role="tab" aria-selected="false" aria-controls="panel-meeting" data-tab="meeting">
+        <span class="tab-icon" aria-hidden="true">💬</span><span class="tab-label">회의실</span>
+      </button>
+      <button class="tab" id="tab-work" role="tab" aria-selected="false" aria-controls="panel-work" data-tab="work">
+        <span class="tab-icon" aria-hidden="true">🧰</span><span class="tab-label">작업실</span>
+      </button>
+      <button class="tab" id="tab-members" role="tab" aria-selected="false" aria-controls="panel-members" data-tab="members">
+        <span class="tab-icon" aria-hidden="true">📊</span><span class="tab-label">비서현황</span>
+      </button>
+      <button class="tab" id="tab-notes" role="tab" aria-selected="false" aria-controls="panel-notes" data-tab="notes">
+        <span class="tab-icon" aria-hidden="true">📝</span><span class="tab-label">메모</span>
+      </button>
+    </nav>
+
+    <main class="panels">
+
+      <!-- 오피스 맵 -->
+      <section class="panel is-active" id="panel-map" role="tabpanel" aria-labelledby="tab-map">
+        <div class="hero">
+          <span class="hero-chip">🏢 건이봉이 오피스 공동 비서실</span>
+          <h2 id="mapHeadline">2개 팀이 대기 중이에요</h2>
+          <p class="hero-desc">방 안의 캐릭터 핀을 눌러 보세요. 방마다 지금 상황을 바로 볼 수 있어요.</p>
+        </div>
+
+        <div class="chips" role="group" aria-label="오피스 상태">
+          <button class="chip chip-toggle is-on" id="motionToggle" aria-pressed="true">
+            <span aria-hidden="true">✨</span> 움직임 <span id="motionLabel">ON</span>
+          </button>
+          <span class="chip"><i class="dot-ok" aria-hidden="true"></i><span id="chipTeams">2개 팀 가동</span></span>
+          <span class="chip">👥 전체 <span id="chipMembers">2</span>명</span>
+        </div>
+
+        <div class="map-card">
+          <div class="map-frame lively" id="mapFrame">
+            <picture>
+              <source srcset="assets/office-map.webp" type="image/webp">
+              <img class="map-img" src="assets/office-map.png"
+                   alt="건이봉이 오피스 미니어처 3D 오피스 그림 — 지휘실 데스크, 대회의실, 작업실 책상, 라운지 소파"
+                   loading="eager" decoding="async">
+            </picture>
+            <div class="map-pins" id="mapPins"></div>
+          </div>
+          <p class="map-hint">핀을 누르면 방 정보가 열려요</p>
+        </div>
+
+        <div class="room-card" id="roomCard" hidden>
+          <div class="room-head">
+            <div class="room-emoji" id="roomEmoji" aria-hidden="true">🎯</div>
+            <div class="room-title">
+              <h3 id="roomName">지휘실</h3>
+              <p id="roomDesc">오늘 할 일을 정하고 두 팀에 나눠 주는 방이에요.</p>
+            </div>
+            <button class="icon-btn" id="roomClose" type="button" aria-label="방 정보 닫기">✕</button>
+          </div>
+          <div class="room-stats" id="roomStats"></div>
+          <p class="room-recent" id="roomRecent"></p>
+          <button class="btn btn-primary" id="roomGo" type="button">비서현황 보기</button>
+        </div>
+      </section>
+
+      <!-- 회의실 -->
+      <section class="panel" id="panel-meeting" role="tabpanel" aria-labelledby="tab-meeting" hidden>
+        <div class="section-head">
+          <h2>회의실</h2>
+          <p>함께 정할 안건을 올려 두면 두 팀이 같이 봐요.</p>
+        </div>
+
+        <form class="card form" id="messageForm" autocomplete="off">
+          <label class="field">
+            <span>안건</span>
+            <input type="text" id="msgTitle" maxlength="60" required placeholder="예: 12월 가족 일정 정리하기">
+          </label>
+          <label class="field">
+            <span>내용 <em>(선택)</em></span>
+            <textarea id="msgBody" rows="2" maxlength="400" placeholder="의논할 내용을 적어 주세요"></textarea>
+          </label>
+          <div class="form-row">
+            <label class="field field-inline">
+              <span>올린 사람</span>
+              <select id="msgAuthor"></select>
+            </label>
+            <button class="btn btn-primary" type="submit">안건 올리기</button>
+          </div>
+        </form>
+
+        <div class="list" id="messageList"></div>
+        <div class="empty" id="messageEmpty" hidden>
+          <span class="empty-emoji" aria-hidden="true">🫧</span>
+          아직 올라온 안건이 없어요.<br>첫 안건을 올려 보세요!
+        </div>
+      </section>
+
+      <!-- 작업실 -->
+      <section class="panel" id="panel-work" role="tabpanel" aria-labelledby="tab-work" hidden>
+        <div class="section-head">
+          <h2>작업실</h2>
+          <p>맡은 일을 하나씩 체크해요. 끝난 일은 자동으로 완료로 모여요.</p>
+        </div>
+
+        <form class="card form" id="taskForm" autocomplete="off">
+          <label class="field">
+            <span>할 일</span>
+            <input type="text" id="taskTitle" maxlength="80" required placeholder="예: 아이돌봄서비스 서류 확인">
+          </label>
+          <div class="form-row">
+            <label class="field field-inline">
+              <span>맡는 사람</span>
+              <select id="taskAssignee"></select>
+            </label>
+            <button class="btn btn-primary" type="submit">할 일 추가</button>
+          </div>
+        </form>
+
+        <div class="filter-row" id="taskFilters" role="group" aria-label="담당자 필터"></div>
+
+        <div class="list" id="taskList"></div>
+        <div class="empty" id="taskEmpty" hidden>
+          <span class="empty-emoji" aria-hidden="true">🧺</span>
+          아직 할 일이 없어요.<br>오늘 할 일을 하나 적어 볼까요?
+        </div>
+      </section>
+
+      <!-- 비서현황 -->
+      <section class="panel" id="panel-members" role="tabpanel" aria-labelledby="tab-members" hidden>
+        <div class="section-head">
+          <h2>비서현황</h2>
+          <p>지금 오피스에 있는 팀이에요. 직책은 나중에 정해도 괜찮아요.</p>
+        </div>
+
+        <div class="member-grid" id="memberGrid"></div>
+        <p class="foot-note">구성원이 더 생기면 <strong>＋ 가족 구성원 추가</strong>로 이어 붙일 수 있어요.</p>
+      </section>
+
+      <!-- 메모 -->
+      <section class="panel" id="panel-notes" role="tabpanel" aria-labelledby="tab-notes" hidden>
+        <div class="section-head">
+          <h2>메모</h2>
+          <p>잊으면 안 되는 소소한 것들을 붙여 두는 칠판이에요.</p>
+        </div>
+
+        <form class="card form" id="noteForm" autocomplete="off">
+          <label class="field">
+            <span>메모</span>
+            <textarea id="noteText" rows="2" maxlength="300" required placeholder="예: 지우 이유식 재료 사기"></textarea>
+          </label>
+          <div class="form-row form-row-wrap">
+            <label class="field field-inline">
+              <span>쓴 사람</span>
+              <select id="noteAuthor"></select>
+            </label>
+            <div class="color-picker" id="noteColors" role="group" aria-label="메모 색">
+              <button class="swatch is-active" type="button" data-color="lilac" aria-label="라일락" aria-pressed="true"></button>
+              <button class="swatch" type="button" data-color="peach" aria-label="피치" aria-pressed="false"></button>
+              <button class="swatch" type="button" data-color="mint" aria-label="민트" aria-pressed="false"></button>
+              <button class="swatch" type="button" data-color="butter" aria-label="버터" aria-pressed="false"></button>
+            </div>
+            <button class="btn btn-primary" type="submit">붙이기</button>
+          </div>
+        </form>
+
+        <div class="notes-grid" id="noteList"></div>
+        <div class="empty" id="noteEmpty" hidden>
+          <span class="empty-emoji" aria-hidden="true">📌</span>
+          아직 붙여 둔 메모가 없어요.<br>작은 메모 하나부터 시작해요.
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="foot">
+      <span id="footMode">데이터는 이 브라우저에만 저장돼요 · DB를 연결하면 두 팀이 실시간으로 함께 봐요</span>
+    </footer>
+  </div>
+
+  <!-- 구성원 추가 -->
+  <div class="modal" id="memberModal" hidden>
+    <div class="modal-backdrop" data-close="memberModal"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="memberModalTitle">
+      <div class="modal-head">
+        <h3 id="memberModalTitle">가족 구성원 추가</h3>
+        <button class="icon-btn" type="button" data-close="memberModal" aria-label="닫기">✕</button>
+      </div>
+      <form class="form" id="memberForm" autocomplete="off">
+        <label class="field">
+          <span>이름 (부르는 이름)</span>
+          <input type="text" id="memberName" maxlength="20" required placeholder="예: 기훈">
+        </label>
+        <label class="field">
+          <span>함께 쓰는 피클 이름 <em>(선택)</em></span>
+          <input type="text" id="memberPickle" maxlength="20" placeholder="예: 토리">
+        </label>
+        <fieldset class="field">
+          <legend>얼굴</legend>
+          <div class="emoji-picker" id="memberEmoji" role="radiogroup" aria-label="얼굴 선택"></div>
+        </fieldset>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close="memberModal">취소</button>
+          <button class="btn btn-primary" type="submit">추가하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p class="noscript">이 페이지를 쓰려면 브라우저에서 자바스크립트를 켜 주세요.</p>
+  </noscript>
+
+  <script src="js/db-config.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
