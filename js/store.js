@@ -47,7 +47,7 @@
     return {
       members: [
         member('geon', '건이', '올라', '🌿', 'lilac'),
-        member('bong', '봉이', '피클', '🍑', 'peach')
+        member('bong', '봉이', '똑똑이', '🍑', 'peach')
       ],
       messages: [],
       tasks: [],
