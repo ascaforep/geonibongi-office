@@ -27,17 +27,17 @@ window.OFFICE_CONFIG = {
   prefsKey: 'geonibongi-office:prefs',
 
   firebase: {
-    enabled: false,
+    enabled: true,
 
     /* Realtime Database 주소가 들어 있는 firebaseConfig 를 그대로 붙여 넣으세요. */
     config: {
-      apiKey: '',
-      authDomain: '',
-      databaseURL: '',          // 예: https://my-office-default-rtdb.asia-southeast1.firebasedatabase.app
-      projectId: '',
-      storageBucket: '',
-      messagingSenderId: '',
-      appId: ''
+      apiKey: 'AIzaSyDe-keQNbHW5EFNeLoo-YGI3gx5gTZEY_o',
+      authDomain: 'geonibongi-office.firebaseapp.com',
+      databaseURL: 'https://geonibongi-office-default-rtdb.asia-southeast1.firebasedatabase.app',
+      projectId: 'geonibongi-office',
+      storageBucket: 'geonibongi-office.firebasestorage.app',
+      messagingSenderId: '74090880959',
+      appId: '1:74090880959:web:68b781f83b71c253534b0a'
     },
 
     /* 이 오피스의 데이터가 저장될 경로 (같은 DB 를 다른 오피스와 나눠 쓸 때 사용) */
