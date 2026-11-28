@@ -46,9 +46,9 @@
     };
   }
 
-  /* 기본 구성원의 '이름표'만 맞추는 항목들.
-     (직책 role 과 합류 시각 joinedAt 은 사람이 정한 값이라 건드리지 않아요) */
-  var CORE_IDENTITY = ['name', 'pickle', 'label', 'emoji', 'tone', 'cat', 'sub', 'kind'];
+  /* 기본 구성원의 모습을 맞추는 항목들.
+     (합류 시각 joinedAt 은 그대로 두고, 직책 role 은 가족이 정한 지금 직책으로 맞춰요) */
+  var CORE_IDENTITY = ['name', 'pickle', 'label', 'emoji', 'tone', 'cat', 'sub', 'kind', 'role'];
 
   /* 처음 열었을 때 보이는 기본 데이터
      — 여섯 고양이 비서: 사람 세 팀(건이·봉이·꼼꼼이)과 AI 직원 셋(클로드·지피티·안티그래비티) */
@@ -73,12 +73,14 @@
         }),
         member('claude', '클로드', '클로드', '🧠', 'mint', {
           label: '클로드',
+          role: '전문 지원',
           sub: '노션 일 목록으로 함께 일해요',
           kind: 'ai',
           cat: 'claude'
         }),
         member('gpt', '지피티', '지피티', '🤖', 'butter', {
           label: '지피티',
+          role: '전문 지원',
           sub: '노션 일 목록으로 함께 일해요',
           kind: 'ai',
           cat: 'gpt'
@@ -113,9 +115,9 @@
     return seedState().members;
   }
 
-  /* 저장된 기본 구성원의 이름표가 옛 이름(GPT 등)이면 지금 이름표로 맞춰 주고,
-     빠진 기본 구성원(안티그래비티 등)은 채워 넣습니다.
-     직책·합류 시각처럼 사람이 정한 값은 그대로 둬요. */
+  /* 저장된 기본 구성원의 이름표·직책이 옛 값(GPT, 감시 실장 등)이면 지금 값으로 맞춰 주고,
+     빠진 기본 구성원(안티그래비티·꼼꼼이 등)은 채워 넣습니다.
+     합류 시각처럼 사람이 정한 값은 그대로 둬요. */
   function mergeCoreMembers(list) {
     var arr = Array.isArray(list) ? list.slice() : [];
     var have = {};
@@ -129,9 +131,6 @@
       CORE_IDENTITY.forEach(function (key) {
         if (next[key] !== seed[item.id][key]) next[key] = seed[item.id][key];
       });
-      /* 직책이 비어 있을 때만 지금 정한 직책을 채워 넣어요
-         (사람이 직접 넣은 직책은 그대로 둠) */
-      if (!next.role && seed[item.id].role) next.role = seed[item.id].role;
       return next;
     });
 
@@ -297,9 +296,9 @@
   };
 
   /* 이미 사는 중인 DB 의 기본 구성원을 지금 모습으로 맞춥니다.
-     - 빠진 기본 구성원(클로드·지피티·안티그래비티)은 새로 넣고
-     - 옛 이름표(GPT 등)나 고양이 모양이 없는 기본 구성원은 이름표만 고쳐 씁니다.
-     직책(role)·합류 시각(joinedAt)처럼 사람이 정한 값은 건드리지 않아요. */
+     - 빠진 기본 구성원(클로드·지피티·안티그래비티·꼼꼼이)은 새로 넣고
+     - 옛 이름표(GPT 등)나 고양이 모양이 없는 기본 구성원은 이름표·직책만 고쳐 씁니다.
+     합류 시각(joinedAt)은 그대로 둬요. (직책은 가족이 정한 지금 값으로 맞춤) */
   FirebaseBackend.prototype._ensureCoreMembers = function () {
     var self = this;
     return this.db.ref(this.path('members')).once('value').then(function (snap) {
@@ -325,8 +324,6 @@
         CORE_IDENTITY.forEach(function (key) {
           if (saved[key] !== m[key]) patch['members/' + m.id + '/' + key] = m[key];
         });
-        /* 직책이 비어 있는 기본 구성원은 지금 정한 직책으로 채워요 */
-        if (!saved.role && m.role) patch['members/' + m.id + '/role'] = m.role;
       });
       if (!Object.keys(patch).length) return null;
       return self.db.ref(self.root).update(patch);
