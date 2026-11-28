@@ -51,12 +51,26 @@
   var CORE_IDENTITY = ['name', 'pickle', 'label', 'emoji', 'tone', 'cat', 'sub', 'kind'];
 
   /* 처음 열었을 때 보이는 기본 데이터
-     — 다섯 고양이 비서: 사람 두 팀(건이·봉이)과 AI 직원 셋(클로드·지피티·안티그래비티) */
+     — 여섯 고양이 비서: 사람 세 팀(건이·봉이·꼼꼼이)과 AI 직원 셋(클로드·지피티·안티그래비티) */
   function seedState() {
     return {
       members: [
-        member('geon', '건이', '올라', '🌿', 'lilac', { cat: 'geon' }),
-        member('bong', '봉이', '똑똑이', '🍑', 'peach', { cat: 'bong' }),
+        member('geon', '건이', '올라', '🌿', 'lilac', {
+          cat: 'geon',
+          role: '감사팀',
+          sub: '건이 곁에서 오피스와 비서들을 감사해요'
+        }),
+        member('bong', '봉이', '똑똑이', '🍑', 'peach', {
+          cat: 'bong',
+          role: '비서실장',
+          sub: '비서실을 이끌고 일을 나눠 줘요'
+        }),
+        member('kkomkkomi', '꼼꼼이', '꼼꼼이', '🧷', 'sky', {
+          label: '꼼꼼이',
+          role: '비서',
+          sub: '똑똑이 아래에서 맡은 일을 해요',
+          cat: 'kkomkkomi'
+        }),
         member('claude', '클로드', '클로드', '🧠', 'mint', {
           label: '클로드',
           sub: '노션 일 목록으로 함께 일해요',
@@ -115,6 +129,9 @@
       CORE_IDENTITY.forEach(function (key) {
         if (next[key] !== seed[item.id][key]) next[key] = seed[item.id][key];
       });
+      /* 직책이 비어 있을 때만 지금 정한 직책을 채워 넣어요
+         (사람이 직접 넣은 직책은 그대로 둠) */
+      if (!next.role && seed[item.id].role) next.role = seed[item.id].role;
       return next;
     });
 
@@ -308,6 +325,8 @@
         CORE_IDENTITY.forEach(function (key) {
           if (saved[key] !== m[key]) patch['members/' + m.id + '/' + key] = m[key];
         });
+        /* 직책이 비어 있는 기본 구성원은 지금 정한 직책으로 채워요 */
+        if (!saved.role && m.role) patch['members/' + m.id + '/role'] = m.role;
       });
       if (!Object.keys(patch).length) return null;
       return self.db.ref(self.root).update(patch);

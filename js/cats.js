@@ -1,6 +1,6 @@
 /* ============================================================
    건이봉이 오피스 — cats.js
-   다섯 비서 고양이 캐릭터를 SVG 로 그립니다.
+   비서 고양이 캐릭터를 SVG 로 그립니다.
 
      window.OfficeCats.svg('geon')      → 몸통까지 있는 고양이 (지도·카드)
      window.OfficeCats.face('geon')     → 얼굴만 (배지·이름표 옆 작은 얼굴)
@@ -26,6 +26,12 @@
       fur: '#FFC9A8', furLight: '#FFE7D8', furDark: '#F0A379',
       inner: '#FFB0A0', ink: '#5A3B33', nose: '#EE7E92',
       collar: '#E98A5C', extra: 'flower'
+    },
+    /* 꼼꼼이 — 회청색 털, 리본, 똑똑이 아래에서 일하는 비서 */
+    kkomkkomi: {
+      fur: '#CBD5E4', furLight: '#EDF2FA', furDark: '#A2B0C6',
+      inner: '#F9C9DF', ink: '#33414F', nose: '#EF8DA0',
+      collar: '#6E8CB4', extra: 'ribbon'
     },
     /* 클로드 — 민트 털, 동그란 안경, 책 읽는 고양이 */
     claude: {
@@ -100,6 +106,13 @@
     parts.push('<circle cx="74.5" cy="50.6" r="1.9" fill="#FFFFFF"/>');
     parts.push('<circle cx="45.8" cy="55.6" r="1" fill="#FFFFFF" opacity=".75"/>');
     parts.push('<circle cx="70.8" cy="55.6" r="1" fill="#FFFFFF" opacity=".75"/>');
+
+    if (c.extra === 'ribbon') {
+      parts.push('<g>' +
+        '<path d="M60 13 C54 6 46 6 45 12.5 C44 19 53 20 60 13 Z" fill="#F7A8C0"/>' +
+        '<path d="M60 13 C66 6 74 6 75 12.5 C76 19 67 20 60 13 Z" fill="#F7A8C0"/>' +
+        '<circle cx="60" cy="13" r="2.9" fill="#E8768F"/></g>');
+    }
 
     if (c.extra === 'glasses') {
       parts.push('<circle cx="47.5" cy="53" r="9" fill="#FFFFFF" opacity=".26" stroke="' + c.ink + '" stroke-width="1.9"/>');
